@@ -1,8 +1,20 @@
 Repositório Git para os códigos do Double Cross Validation
 
-O códito na Branch Master tentará ser o mais genérico possível.
+Em vez de alterar os nomes dos arquivos nos scripts, utilize os 
+nomes padrões que estão na pasta dataset/current:
+	> input.txt
+	> input_beta-binomial.txt
 
-Enquanto códigos nas outras branches farão referências cada um à seu projeto.
+Os resultados serão armazenados com nomes padrões também.
+Eles serão ficarão na pasta
+       > ./results/beta-binomial/
+       > ./results/nsc/
+       > ./results/svm-rfe/
+Verifique as datas de modificações dos arquivos resultados.
+Copie ou mova esses arquivos para uma nova pasta, pois ao executar
+os scripts novamente, os arquivos da pasta /results serão
+sobrescritos.
+
 
 == Descrição ==
 # master:
@@ -14,4 +26,6 @@ Algumas correções podem ser específicas de cada projeto (ver abaixo).
 Dados da Romênia, com 4 classes, 10 amostras em cada classe.
 
 
-
+# dataset/current/
+Pasta em que fica os arquivos com nomes padrão para os scripts
+exemplo: input.txt
