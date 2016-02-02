@@ -18,7 +18,6 @@ N = as.integer(read.csv("./results/nsc/double_selected_N_nsc.txt", header=FALSE)
 TUNE = TRUE
 tuned = NULL # iniciando variável de tune
 
-
 # leitura de treino
 db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
 

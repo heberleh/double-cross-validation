@@ -1,4 +1,4 @@
-Average error of 100 double cross-validation repetitions: 0.05555556
+Average error of double cross-validation repetitions: 0.05555556
 
 Maximum error between repetitions: 0.05555556
 
@@ -39,7 +39,7 @@ Prevalence                    0.3333           0.3333        0.3333
 Detection Rate                0.3333           0.3333        0.2778
 Detection Prevalence          0.3333           0.3889        0.2778
 Balanced Accuracy             1.0000           0.9583        0.9167
- [1] carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  carcinoma
+ [1] carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  carcinoma carcinoma melanoma  normal   
 Levels: melanoma carcinoma normal
  [1] carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal   
 Levels: melanoma carcinoma normal

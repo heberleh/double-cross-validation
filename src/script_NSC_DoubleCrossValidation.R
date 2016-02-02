@@ -452,7 +452,7 @@ complete_genes_names_list = complete_genes_list[,2]
 constant_proteins_for_nsc <- as.matrix(secretome.data$genenames[!(secretome.data$genenames %in% complete_genes_names_list )])
 constant_proteins_for_nsc_index <- match(constant_proteins_for_nsc,secretome.data$genenames)
 
-write.matrix(cbind(original_complete_data$genenames[constant_proteins_for_nsc_index],original_complete_data$x[constant_proteins_for_nsc_index,]), "./results/nsc/removed_proteins_by_NSC.csv",sep=",")
+write.matrix(cbind(secretome.data$genenames[constant_proteins_for_nsc_index],secretome.data$x[constant_proteins_for_nsc_index,]), "./results/nsc/removed_proteins_by_NSC.csv",sep=",")
 
 # esse ranking se refere ao conjunto de treinamento
 ranking = as.matrix(match(complete_genes_names_list, secretome.data$genenames))
