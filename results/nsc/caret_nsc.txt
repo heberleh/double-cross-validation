@@ -1,0 +1,45 @@
+Average error of 100 double cross-validation repetitions: 0.05555556
+
+Maximum error between repetitions: 0.05555556
+
+Minimum error between repetitions: 0.05555556
+
+Best model index: 1
+
+Selected final N: 1697
+
+Double-Cross-Validation Error: 0.05555556
+
+Confusion Matrix and Statistics
+
+           Reference
+Prediction  melanoma carcinoma normal
+  melanoma         6         0      0
+  carcinoma        0         6      1
+  normal           0         0      5
+
+Overall Statistics
+                                          
+               Accuracy : 0.9444          
+                 95% CI : (0.7271, 0.9986)
+    No Information Rate : 0.3333          
+    P-Value [Acc > NIR] : 9.55e-08        
+                                          
+                  Kappa : 0.9167          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: melanoma Class: carcinoma Class: normal
+Sensitivity                   1.0000           1.0000        0.8333
+Specificity                   1.0000           0.9167        1.0000
+Pos Pred Value                1.0000           0.8571        1.0000
+Neg Pred Value                1.0000           1.0000        0.9231
+Prevalence                    0.3333           0.3333        0.3333
+Detection Rate                0.3333           0.3333        0.2778
+Detection Prevalence          0.3333           0.3889        0.2778
+Balanced Accuracy             1.0000           0.9583        0.9167
+ [1] carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  carcinoma
+Levels: melanoma carcinoma normal
+ [1] carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal    carcinoma melanoma  normal   
+Levels: melanoma carcinoma normal

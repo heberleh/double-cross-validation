@@ -3,16 +3,26 @@ library(MASS)
 library(class)
 library(e1071)
 library(dismo)
-
 library("parallel")
 #library("foreach")
 #library("doParallel")
-
-
 require(foreach)
 #require(doParallel)
 require(doSNOW)
 
+
+
+# LOOK FOR THE SPECIFIC "TEXT" TO EDIT INPUT OR PARAMETERS:
+# #=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
+# SERACH FOR THE ABOVE STRING
+
+
+
+
+
+
+
+# FUNCTIONS, DO NOT EDIT, UNLESS YOU WANT TO CHANGE THE SCRIPT
 data = vector()
 
 ################################################
@@ -197,7 +207,39 @@ getLowerNLowerError <- function(errors, Ns){
 
 
 
-db <- read.table("LFQintensity_no_zeros_input.txt", header=TRUE,sep="\t")
+#=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
+
+# PARAMETERS:    file.txt
+# SEE THE INPUT.TXT AND FOLLOW THE PATTERN
+db <- read.table("./dataset/current/input.txt", header=TRUE,sep="\t")
+
+
+global_tune = FALSE        # DECIDE IF THE SCRIPT SHOULD TUNE THE MODEL PARAMETERS IN EVERY LOOP OF EACH REPETITION
+                           # OR USE DEFAULT COST AND GAMMA VALUES: 10 AND 10^-4
+                           # NOTE THAT WITH SMALL NUMBER OF SAMPLES THE TUNE FUNCTION CAN'T RUN 
+                           # THE K-FOLD CROSS VALIDATION IF THE FOLDS CONTAIN ONLY ONE OR 2 SAMPLES, OR WORST: ZERO SAMPLES.                           
+                           
+
+repetition <- 10           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+                           # default: 100
+                                                      
+
+#nCluster = detectCores()                           
+nCluster = 4               # NUMBER OF CORES/NUCLEUS FOR PARALLEL PROCESSING. 
+                           # FOR INSTANCE, Intel i7 processors might have 8 virtual nucleus.
+                           # IF YOU SET nCluster = 8, THE SCRIPT WILL RUN
+                           # 8 DOUBLE CROSS VALIDATION AT THE SAME TIME, ONE PER CORE.
+                           # I PREFERE TO SET nCluster = <NUMBER OF REAL CORES>
+                           # In general, 8 virtual nucleus are actually 4 real cores.
+                           # You can use the command "nCluster = detectCores()" to
+                           # detect the max. number of cores (including virtual ones).
+                           # In 8 virtual cores processor, the function detectCores() will
+                           # return: 8.
+
+
+
+
+
 
 #diminuir a dimensionalidade apenas para testes rápidos do código
 #db2 <- t(db[1:500,])
@@ -210,6 +252,12 @@ colnames(secretome.x)<-db2[2,2:ncol(db2)]
 #yvector<-as.vector(unlist(db2[3:ncol(db2),1]))
 secretome.y <- as.factor(db2[3:nrow(db2),1])
 
+
+# z-score? Models like SVM have padronization by z-score by default.
+# Do not use this z-score code, unless you really want and know what
+# you are doing.
+# part of the code padronizes by lines.
+# the other part padronizes by columns.
 #x = log(x)
 #scale samples with mean zero and standard deviation one
 #for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))/sd(x[i,])
@@ -219,18 +267,13 @@ secretome.y <- as.factor(db2[3:nrow(db2),1])
 
 #featureRankedList = svmrfeFeatureRankingForMulticlass(secretome.x, secretome.y)
 
-global_tune = FALSE #se o cunjunto for pequeno, usar FALSE. TRUE fara calcular
-#parametros gamma e cost do svm por varios k-folds, um em cada repetiçao dos n kfolds q sao executados...
-#isso deixa o programa ainda mais lento. Com FALSE os valores sao 10^-4   e 10.
-repetition <- 10
+
 selected_outer = list()
 final_outer_error = vector()
 final_outer_error_min = vector()
 final_outer_error_max = vector()
 final_N = vector()
 logdouble = list()
-
-nCluster = 4
 
 cl = makeCluster(nCluster,type="SOCK")
 registerDoSNOW(cl) 
@@ -449,7 +492,7 @@ ref = as.vector(unlist(ref))
 
 library(caret)
 
-sink("caret_SVM-RFE_result.txt")
+sink("./results/svm-rfe/caret_svm-rfe.txt")
 cat("Average error of 100 double cross-validation repetitions: ")
 cat(mean_double_error)
 cat("\n\n")
@@ -479,7 +522,7 @@ confusionMatrix(pred, ref, positive=NULL)
 sink()
 
 m = cbind(all_N, double_error)
-write.csv(m,"all_N_and_Double_error_Repetition.csv")
+write.csv(m,"./results/smv-rfe/all_n_and_double_error_repetition_svm-rfe.csv")
 
 tuned = NULL
 #Tuna para encontrar parâmetros com o conjunto completo

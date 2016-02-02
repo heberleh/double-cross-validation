@@ -1,8 +1,14 @@
 library("MASS")
 library("pamr")
-
 library("parallel")
 
+# LOOK FOR THE SPECIFIC "TEXT" TO EDIT INPUT OR PARAMETERS:
+# #=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
+# SERACH FOR THE ABOVE STRING
+
+
+
+# FUNCTIONS, DO NOT EDIT, UNLESS YOU WANT TO CHANGE THE SCRIPT
 balanced.folds <- function (y, nfolds = min(min(table(y)), 10))   
 {
   totals <- table(y)
@@ -162,11 +168,17 @@ make_plot <- function(path,x,y,str){
 secretome.data <- pamr.from.excel("./dataset/current/input.txt", 20, sample.labels=TRUE)
 #secretome.data <- pamr.from.excel("spectral_counts_no_zeros_input.txt", 20, sample.labels=TRUE)
 
-repetition = 100         #NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
-thresholds_number = 90   #NUMBER OF CALCULATED THRESHOLDS
+repetition = 2           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+                         # default: 100
+                         
+thresholds_number = 5   # NUMBER OF CALCULATED THRESHOLDS  default: 90
+                         # default: 90
 
-
-#z-score?
+# z-score? Models like NSC have padronization by z-score by default.
+# Do not use this z-score code, unless you really want and know what
+# you are doing.
+# part of the code padronizes by lines.
+# the other part padronizes by columns.
 #x = secretome.data$x
 #for(i in 1:ncol(x))x[,i] = (x[,i]-mean(x[,i]))
 #for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))
@@ -480,7 +492,7 @@ pred
 ref
 sink()
 
-
+pdf("./results/nsc/class_nsc_plot.pdf")
 pamr.plotcen(secretome.train2, secretome.data, thres[index])
 
 final_genes = pamr.listgenes(secretome.train2, secretome.data, thres[index], fitcv=NULL, genenames=TRUE)
