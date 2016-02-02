@@ -1,6 +1,6 @@
 library(ibb)
 
-d <- read.delim("./dataset/current/input_beta-binomial.txt", header = TRUE)
+d <- read.delim("./dataset/current/train_beta-binomial.txt", header = TRUE)
 
 # using all available CPU cores
 #melanoma,  carcinoma, normal

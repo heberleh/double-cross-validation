@@ -163,10 +163,9 @@ make_plot <- function(path,x,y,str){
 #=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
 
 # PARAMETERS:    file.txt, number_of_columns
-# SEE THE INPUT.TXT AND FOLLOW THE PATTERN
+# SEE THE train.txt AND FOLLOW THE PATTERN
 
-secretome.data <- pamr.from.excel("./dataset/current/input.txt", 20, sample.labels=TRUE)
-#secretome.data <- pamr.from.excel("spectral_counts_no_zeros_input.txt", 20, sample.labels=TRUE)
+secretome.data <- pamr.from.excel("./dataset/current/train.txt", 20, sample.labels=TRUE)
 
 repetition = 2           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                          # default: 100
@@ -447,10 +446,25 @@ secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales,
 list_genes_final=pamr.listgenes(secretome.train2, secretome.data, thres[index])
 complete_genes_list = pamr.listgenes(secretome.train2, secretome.data, 0, genenames=TRUE)
 write.csv(complete_genes_list,"./results/nsc/gene_ranking_nsc_complete.csv")
+complete_genes_names_list = complete_genes_list[,2]
+
+# identifica proteínas descartadas para por no fim do ranking
+constant_proteins_for_nsc <- as.matrix(secretome.data$genenames[!(secretome.data$genenames %in% complete_genes_names_list )])
+constant_proteins_for_nsc_index <- match(constant_proteins_for_nsc,secretome.data$genenames)
+
+write.matrix(cbind(original_complete_data$genenames[constant_proteins_for_nsc_index],original_complete_data$x[constant_proteins_for_nsc_index,]), "./results/nsc/removed_proteins_by_NSC.csv",sep=",")
+
+# esse ranking se refere ao conjunto de treinamento
+ranking = as.matrix(match(complete_genes_names_list, secretome.data$genenames))
+ranking <- rbind(ranking, as.matrix(constant_proteins_for_nsc_index))
+write.matrix(ranking, file = "./results/nsc/rank_index_nsc.csv", sep = ",")
+
+
 
 
 # final_results <- cbind(thres,probs_final,double_cross_error,bestFinalN)
 finalN = nrow(list_genes_final)
+write(finalN, file="./results/nsc/double_selected_N_nsc.txt")
 
 final_inner_model_rep = selected_inner_model_final[[index]]
 final_outer_model_rep = selected_outer_model_final[[index]]
@@ -458,12 +472,27 @@ final_outer_model_rep = selected_outer_model_final[[index]]
 final_pred_list = preds_outer_rep[[index]]
 final_ref_list = refs_outer_rep[[index]]
 
+
+
+#imprime todos os erros e valores de N
+allpossibleN = numeric(0)
+for( countn in 1:repetition){
+  auxlist=pamr.listgenes(secretome.train2, secretome.data, thres[countn])
+  allpossibleN <- append(allpossibleN, nrow(auxlist))
+}
+allNThresErrors <- cbind(thres, double_cross_error)
+allNThresErrors <- cbind(allNThresErrors,allpossibleN)
+colnames(allNThresErrors)<-c("thresholds","double_cross_error","N")
+write.csv(allNThresErrors,"./results/nsc/errors_thresholds_and_Ns_nsc.csv")
+
+
+
 library(caret)
 pred  = as.vector(unlist( final_pred_list ))
 ref = as.vector(unlist( final_ref_list ))
 
 sink("./results/nsc/caret_nsc.txt")
-cat("Average error of 100 double cross-validation repetitions: ")
+cat("Average error of double cross-validation repetitions: ")
 cat(mean_double_cross_validation)
 cat("\n\n")
 cat("Maximum error between repetitions: ")

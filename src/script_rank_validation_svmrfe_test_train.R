@@ -12,48 +12,56 @@ library(caret)
 # 13 a 18 -> 13
 
 # N selecionado como N do double cross
-N = as.integer(read.csv("./double_selected_N_svmrfe.txt", header=FALSE)[1,1])
+N = as.integer(read.csv("./results/svm-rfe/double_selected_N_svmrfe.txt", header=FALSE)[1,1])
 
 # Esclha entre "tunar" ou não os parâmetros do SVM para cada valor de N, para cada ranking.
 TUNE = FALSE
 tuned = NULL # iniciando variável de tune
 
 
-# leitura de treino e teste
-db <- read.table("./spectral_counts_no_zeros_input.txt", header=TRUE,sep="\t")
+# leitura de treino
+db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
+db_test <- read.table("./dataset/current/independent_test.txt", header=TRUE,sep="\t")
 
 # transposta, colunas serão proteínas
 db2 <-t(db)
+db2_test <-t(db_test)
 
 # descarta header
 matrix <- as.matrix(db2[3:nrow(db2),2:(ncol(db2))])
+matrix_test <- as.matrix(db2_test[3:nrow(db2_test),2:(ncol(db2_test))])
+
 class(matrix) <- 'numeric'
+class(matrix_test) <- 'numeric'
 
 
 #nomes das colunas (proteínas) e classes das amostras
 colnames(matrix)<-db2[2,2:ncol(db2)]
-y <- as.factor(db2[3:nrow(db2),1])
+colnames(matrix_test)<-db2_test[2,2:ncol(db2_test)]
 
-test_index = c(3,11,13)
 
-aux <- matrix[-test_index,]
-nonzeros <-  (colSums(abs(aux))>0.000)
+#aux <- matrix
+#nonzeros <-  (colSums(abs(aux))>0.000)
 
 # save constant proteins from the train set
 #zeros_index = which(as.logical(nonzeros == FALSE))+1  #+1 because of 1 line of header
 #zeros_names = db[zeros_index,2]
 
 # remove proteins wich were constant-zero in the used train set of double-cross
-matrix <- matrix[,nonzeros]
+#matrix <- matrix[,nonzeros]
 
 #scale *features* with mean zero and standard deviation one
 #for(i in 1:ncol(matrix))matrix[,i] = (matrix[,i]-mean(matrix[,i]))/sd(matrix[,i])
 
+
+
+y <- as.factor(db2[3:nrow(db2),1])
+ytest <- as.factor(db2_test[3:nrow(db2_test),1])
+
+
 # define train and test sets
-x <- matrix[-test_index,]
-xtest <- matrix[test_index,]
-ytest <- y[test_index]
-y <- y[-test_index]
+x <- matrix
+xtest <- matrix_test
 
 
 # definindo os valores de classes
@@ -64,7 +72,7 @@ y <- y[-test_index]
 
 
 # indexes of ranking list from double cross validation
-rankdb <- read.csv("./rank_index_svmrfe.csv", header=FALSE)
+rankdb <- read.csv("./results/svm-rfe/rank_index_svmrfe.csv", header=FALSE)
 ranking_index = as.matrix(rankdb)
 
 predN = c()
@@ -155,25 +163,25 @@ for(nfeatures in range){
 }
 
 n_range= 2:ncol(x)
-pdf("plot_ranking_svmrfe.pdf")
+pdf("./results/svm-rfe/independent/ranking_svmrfe_indepentend_test_validation_N_values.pdf")
 plot(n_range, rank_accuracy)
 dev.off()
 
-pdf("plot_gniknar_svmrfe.pdf")
+pdf("./results/svm-rfe/independent/gniknar_svmrfe_indepentend_test_validation_N_values.pdf")
 plot(n_range, unlike_rank_accuracy)
 dev.off()
 
-pdf("plot_random_ranking_svmrfe.pdf")
+pdf("./results/svm-rfe/independent/random_ranking_svmrfe_indepentend_test_validation_N_values.pdf")
 plot(n_range, random_rank_accuracy)
 dev.off()
 
 # salva a matriz contendo os valores de N=1..max e suas respectivas taxas de acertos de todos os rankings
 results = cbind(n_range,rank_accuracy,unlike_rank_accuracy,random_rank_accuracy)
 colnames(results) <- c("N","Rank","knaR","random rank")
-write.matrix(results, file = "rankings_scores_svmrfe.csv", sep = ",")
+write.matrix(results, file = "./results/svm-rfe/independent/rankings_scores_svmrfe_independent_test.csv", sep = ",")
 
 
-sink("caret_svmrfe_independent_test.txt")
+sink("./results/svm-rfe/independent/caret_svmrfe_independent_test.txt")
 confusionMatrix(predN, ytest, positive=NULL)
 sink()
 

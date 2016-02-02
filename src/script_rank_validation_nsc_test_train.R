@@ -12,22 +12,30 @@ library(pamr)
 # 13 a 18 -> 13
 
 # N selecionado como N do double cross
-N = as.integer(read.csv("./double_selected_N_nsc.txt", header=FALSE)[1,1])
+N = as.integer(read.csv("./results/nsc/double_selected_N_nsc.txt", header=FALSE)[1,1])
 
 # Esclha entre "tunar" ou não os parâmetros do SVM para cada valor de N, para cada ranking.
 TUNE = TRUE
 tuned = NULL # iniciando variável de tune
 
 
-# leitura de treino e teste
-db <- read.table("./spectral_counts_no_zeros_input.txt", header=TRUE,sep="\t")
+# leitura de treino
+db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
+
+# leitura do teste independente
+db_test <- read.table("./dataset/current/independent_test.txt", header=TRUE,sep="\t")
+
 
 # transposta, colunas serão proteínas
 db2 <-t(db)
+db2_test <- t(db_test)
 
 # descarta header
 matrix <- as.matrix(db2[3:nrow(db2),2:(ncol(db2))])
+matrix_test <- as.matrix(db2_test[3:nrow(db2_test),2:(ncol(db2_test))])
+
 class(matrix) <- 'numeric'
+class(matrix_test) <- 'numeric'
 
 
 #aux <- matrix[-test_index,]
@@ -46,26 +54,22 @@ class(matrix) <- 'numeric'
 
 #nomes das colunas (proteínas) e classes das amostras
 colnames(matrix)<-db2[2,2:ncol(db2)]
+colnames(matrix_test)<-db2_test[2,2:ncol(db2_test)]
+
+
+
 y <- as.factor(db2[3:nrow(db2),1])
+ytest <- as.factor(db2_test[3:nrow(db2_test),1])
+
 
 
 # define train and test sets
-test_index = c(3,11,13)
-x <- matrix[-test_index,]
-xtest <- matrix[test_index,]
-
-ytest <- y[test_index]
-y <- y[-test_index]
-
-# definindo os valores de classes
-#r = 5
-#y <- as.factor(c(rep('normal',r),rep('carcinoma',r),rep('melanoma',r)))
-#r=1
-#ytest <- as.factor(c(rep('normal',r),rep('carcinoma',r),rep('melanoma',r)))
+x <- matrix
+xtest <- matrix_test
 
 
 # indexes of ranking list from double cross validation
-rankdb <- read.csv("./rank_index_nsc.csv", header=FALSE)
+rankdb <- read.csv("./results/nsc/rank_index_nsc.csv", header=FALSE)
 ranking_index = as.matrix(rankdb) 
 
 
@@ -116,9 +120,6 @@ for(nfeatures in range){
   rank_accuracy<-rbind(rank_accuracy, accuracy)
 }
 cat("\n\n")
-
-
-
 
 
 
@@ -221,25 +222,24 @@ n_range= 2:nrow(traindata$x)
 # salva a matriz contendo os valores de N=1..max e suas respectivas taxas de acertos de todos os rankings
 results = cbind(n_range,rank_accuracy,unlike_rank_accuracy,random_rank_accuracy)
 colnames(results) <- c("N","Rank","knaR","random rank")
-write.matrix(results, file = "rankings_scores_nsc.csv", sep = ",")
+write.matrix(results, file = "./results/nsc/independent/rankings_scores_nsc_independent_test.csv", sep = ",")
 
 #n_range=2:30 FOR DEBUG
-pdf("plot_ranking_nsc.pdf")
+pdf("./results/nsc/independent/ranking_nsc_indepentend_test_validation_N_values.pdf")
 plot(n_range, rank_accuracy)
 dev.off()
 
-pdf("plot_gniknar_nsc.pdf")
+pdf("./results/nsc/independent/gniknar_nsc_indepentend_test_validation_N_values.pdf")
 plot(n_range, unlike_rank_accuracy)
 dev.off()
 
-pdf("plot_random_ranking_nsc.pdf")
+pdf("./results/nsc/independent/random_ranking_nsc_indepentend_test_validation_N_values.pdf")
 plot(n_range, random_rank_accuracy)
 dev.off()
 
-sink("caret_nsc_independent_test.txt")
+sink("./results/nsc/independent/caret_nsc_independent_test.txt")
 confusionMatrix(predN, ytest, positive=NULL)
 sink()
-
 
 
 
