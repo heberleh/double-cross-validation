@@ -171,12 +171,14 @@ make_plot <- function(path,x,y,str){
 # PARAMETERS:    file.txt, number_of_columns
 # SEE THE train.txt AND FOLLOW THE PATTERN
 
-secretome.data <- pamr.from.excel("./dataset/current/train.txt", 20, sample.labels=TRUE)
+aux_db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
+initial_number_of_columns = ncol(aux_db)
+secretome.data <- pamr.from.excel("./dataset/current/train.txt", initial_number_of_columns, sample.labels=TRUE)
 
-repetition = 2           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+repetition = 10          # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                          # default: 100
                          
-thresholds_number = 5   # NUMBER OF CALCULATED THRESHOLDS  default: 90
+thresholds_number = 90   # NUMBER OF CALCULATED THRESHOLDS  default: 90
                          # default: 90
 
 # z-score? Models like NSC have padronization by z-score by default.
@@ -529,6 +531,7 @@ sink()
 
 pdf("./results/nsc/class_nsc_plot.pdf")
 pamr.plotcen(secretome.train2, secretome.data, thres[index])
+dev.off()
 
 final_genes = pamr.listgenes(secretome.train2, secretome.data, thres[index], fitcv=NULL, genenames=TRUE)
 write.csv(final_genes,"./results/nsc/gene_ranking_nsc_cutoff.csv")
@@ -536,6 +539,23 @@ write.csv(final_genes,"./results/nsc/gene_ranking_nsc_cutoff.csv")
 png(filename="./results/nsc/gene_plot_nsc.png", width=4000, height=4000, pointsize=12)
 #png(filename="gene_plot_NSC.png", width=1000, height=1000, pointsize=20)
 pamr.geneplot(secretome.train2, secretome.data, 1)
+dev.off()
+
+
+
+
+
+
+# simple crossvalidation
+# 
+secretome.train <- pamr.train(secretome.data)
+secretome.scales <- pamr.adaptthresh(secretome.train)
+secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales,n.threshold=thresholds_number, scale.sd=TRUE)  
+
+
+cv_result = pamr.cv(secretome.train2, secretome.data)
+pdf("./results/nsc/simple_cross-validation_nsc_plot.pdf")
+pamr.plotcv(cv_result)
 dev.off()
 
 

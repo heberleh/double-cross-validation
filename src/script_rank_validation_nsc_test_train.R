@@ -110,7 +110,7 @@ traindata$y = y
 testdata$x = t(xtest)
 testdata$y = ytest
 
-thresholds_number = 10  
+thresholds_number = 90
 
 predN = c()
 cat("Ranking\n")
@@ -118,7 +118,7 @@ rank_accuracy <- {}
 range = 2:length(ranking_index)
 
 
-range = 2:30 #FOR DEBUG - shorter time
+#range = 2:30 #FOR DEBUG - shorter time
 
 for(nfeatures in range){
   cat("\nRanking  ")
@@ -179,8 +179,8 @@ class(aux) <- "numeric"
 range = 1:(max-1)
 
 #
-max = 30  #FOR DEBUG
-range = 1:(max-1)
+#max = 30  #FOR DEBUG
+#range = 1:(max-1)
 #
 
 #range = 1499:(max-1)
@@ -230,7 +230,7 @@ random_rank_accuracy <- {}
 range =  2:length(ranking_index)
 
 
-range= 2:30 #FOR DEBUG
+#range= 2:30 #FOR DEBUG
 #debug
 
 for(nfeatures in range){
@@ -262,9 +262,9 @@ for(nfeatures in range){
   random_rank_accuracy<-rbind(random_rank_accuracy, accuracy)
 }
 
-n_range= 2:nrow(traindata$x)
+n_range= 2:length(ranking_index)
 
-n_range=2:30 #FOR DEBUG
+#n_range=2:30 #FOR DEBUG
 
 length(n_range)
 length(rank_accuracy)
@@ -277,7 +277,7 @@ results = cbind(n_range,rank_accuracy,unlike_rank_accuracy,random_rank_accuracy)
 colnames(results) <- c("N","Rank","knaR","random rank")
 write.matrix(results, file = "./results/nsc/independent/rankings_scores_nsc_independent_test.csv", sep = ",")
 
-n_range=2:30 #FOR DEBUG
+
 pdf("./results/nsc/independent/ranking_nsc_indepentend_test_validation_N_values.pdf")
 plot(n_range, rank_accuracy)
 dev.off()
