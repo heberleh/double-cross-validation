@@ -27,13 +27,14 @@
 # the scripts are executed, the files in /results folder 
 # will be replaced by new ones.
 
-# Run Double-Cross-Validation and Rankings-Validation using SVM-RFE and SVM
-#R -f ./src/script_SVM_RFE_DoubleCrossValidation.R >/dev/null
-#R -f ./src/script_rank_validation_svmrfe_test_train.R >/dev/null
-
-# Run Double-Cross-Validation and Rankings-Validation using NSC
-#R -f ./src/script_NSC_DoubleCrossValidation.R >/dev/null
-R -f ./src/script_rank_validation_nsc_test_train.R >/dev/null
 
 # Run Beta-Binomial test
-#R -f ./src/script_Beta-Binomial.R >/dev/null
+#R -f ./src/script_Beta-Binomial.R #>/dev/null
+
+# Run Double-Cross-Validation and Rankings-Validation using NSC
+#R -f ./src/script_NSC_DoubleCrossValidation.R #>/dev/null
+R -f ./src/script_rank_validation_nsc_test_train.R #>/dev/null
+
+# Run Double-Cross-Validation and Rankings-Validation using SVM-RFE and SVM
+#R -f ./src/script_SVM_RFE_DoubleCrossValidation.R #>/dev/null
+#R -f ./src/script_rank_validation_svmrfe_test_train.R #>/dev/null

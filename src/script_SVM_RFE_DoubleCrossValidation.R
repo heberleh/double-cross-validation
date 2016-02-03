@@ -1,14 +1,20 @@
-library(rpart)
-library(MASS)
-library(class)
-library(e1071)
-library(dismo)
+
+#Installing required packages
+list.of.packages <- c("MASS", "class", "e1071", "dismo", "caret", "rpart", "parallel")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+
+library("rpart")
+library("MASS")
+library("class")
+library("e1071")
+library("dismo")
+library("caret")
 library("parallel")
-#library("foreach")
-#library("doParallel")
 require(foreach)
-#require(doParallel)
 require(doSNOW)
+
 
 
 
@@ -490,7 +496,6 @@ for (i in 1:size){
 pred = as.vector(unlist(pred))
 ref = as.vector(unlist(ref))
 
-library(caret)
 
 sink("./results/svm-rfe/caret_svm-rfe.txt")
 cat("Average error of  double cross-validation repetitions: ")

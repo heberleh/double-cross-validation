@@ -1,3 +1,9 @@
+
+#Installing required packages
+list.of.packages <- c("MASS", "pamr", "parallel")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
 library("MASS")
 library("pamr")
 library("parallel")

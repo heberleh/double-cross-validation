@@ -1,9 +1,14 @@
-library(rpart)
-library(MASS)
-library(class)
-library(e1071)
-library(dismo)
-library(caret)
+#Installing required packages
+list.of.packages <- c("MASS", "class", "e1071", "dismo", "caret", "rpart")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library("rpart")
+library("MASS")
+library("class")
+library("e1071")
+library("dismo")
+library("caret")
 
 
 # amostras de cada classe geradas aleatoriamente:

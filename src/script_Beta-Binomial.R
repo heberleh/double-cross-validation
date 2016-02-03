@@ -1,8 +1,12 @@
+
+#To install ibb package, please follow the instructions: http://www.oncoproteomics.nl/software/BetaBinomial.html
 library(ibb)
 
 d <- read.delim("./dataset/current/train_beta-binomial.txt", header = TRUE)
 
-# using all available CPU cores
+# using all available CPU cores -> n.threads=0
+
+
 #melanoma,  carcinoma, normal
 out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("melanoma", 6), rep("carcinoma", 6), rep("normal", 6)), n.threads = 0)
 
@@ -11,8 +15,6 @@ out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("melanoma", 6), rep("carcino
 
 
 # write result to file
-
-
 merged_full <- cbind(d, out$p.value)
 merged <-cbind(d[,1:2], out$p.value)
 
