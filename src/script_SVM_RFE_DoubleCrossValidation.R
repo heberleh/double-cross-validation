@@ -459,6 +459,11 @@ allrep <- foreach (rep = 1:repetition, .combine="cbind", .packages = c("e1071","
 stopCluster(cl)
 stime
   
+# end double-cross repetitions
+
+
+
+
 double_error = vector()
 all_N = vector()
 for (rep in 1:repetition){  
@@ -526,8 +531,8 @@ ref=factor(ref, levels=unique(secretome.y))
 confusionMatrix(pred, ref, positive=NULL)
 sink()
 
-m = cbind(all_N, double_error)
-write.csv(m,"./results/smv-rfe/all_n_and_double_error_repetition_svm-rfe.csv")
+m = cbind(all_N, double_error)          
+write.csv(m,"./results/svm-rfe/all_n_and_double_error_repetition_svm-rfe.csv")
 
 tuned = NULL
 #Tuna para encontrar parâmetros com o conjunto completo
@@ -587,7 +592,7 @@ colnames(merged) <- c("gene name","index","rank","v1","v2","v3","v4","v5","v6")
 merged = cbind(merged,x_ordered)
 
 #write.matrix(merged, file = "big_matrix_svm-rfe.csv", sep = ",")
-write.csv(merged, file = "./results/smv-rfe/big_matrix_svm-rfe.csv")
+write.csv(merged, file = "./results/svm-rfe/big_matrix_svm-rfe.csv")
 
 #write.matrix(x_ordered, file = "matrix_by_rank_scale.csv", sep = ",")
 
@@ -598,5 +603,7 @@ write.csv(merged, file = "./results/smv-rfe/big_matrix_svm-rfe.csv")
 #axis(1,at=36,labels=c("36"))
 
 
-
+#for ranking validation with independent test
+write.matrix(featureRankedList, file ="./results/svm-rfe/rank_index_svmrfe.csv", sep=",")
+write(min_N, file="./results/svm-rfe/double_selected_N_svmrfe.txt")
 
