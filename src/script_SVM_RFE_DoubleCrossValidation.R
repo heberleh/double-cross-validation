@@ -220,18 +220,18 @@ getLowerNLowerError <- function(errors, Ns){
 db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
 
 
-global_tune = FALSE        # DECIDE IF THE SCRIPT SHOULD TUNE THE MODEL PARAMETERS IN EVERY LOOP OF EACH REPETITION
+global_tune = TRUE        # DECIDE IF THE SCRIPT SHOULD TUNE THE MODEL PARAMETERS IN EVERY LOOP OF EACH REPETITION
                            # OR USE DEFAULT COST AND GAMMA VALUES: 10 AND 10^-4
                            # NOTE THAT WITH SMALL NUMBER OF SAMPLES THE TUNE FUNCTION CAN'T RUN 
                            # THE K-FOLD CROSS VALIDATION IF THE FOLDS CONTAIN ONLY ONE OR 2 SAMPLES, OR WORST: ZERO SAMPLES.                           
                            
 
-repetition <- 2           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+repetition <- 100          # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                            # default: 100
                                                       
 
 #nCluster = detectCores()                           
-nCluster = 2               # NUMBER OF CORES/NUCLEUS FOR PARALLEL PROCESSING. 
+nCluster = 4               # NUMBER OF CORES/NUCLEUS FOR PARALLEL PROCESSING. 
                            # FOR INSTANCE, Intel i7 processors might have 8 virtual nucleus.
                            # IF YOU SET nCluster = 8, THE SCRIPT WILL RUN
                            # 8 DOUBLE CROSS VALIDATION AT THE SAME TIME, ONE PER CORE.
