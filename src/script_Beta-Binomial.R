@@ -8,10 +8,10 @@ d <- read.delim("./dataset/current/train_beta-binomial.txt", header = TRUE)
 
 
 #melanoma,  carcinoma, normal
-out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("melanoma", 6), rep("carcinoma", 6), rep("normal", 6)), n.threads = 0)
+#out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("melanoma", 6), rep("carcinoma", 6), rep("normal", 6)), n.threads = 0)
 
 # four groups
-#out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("grupo_1", 6), rep("grupo_2", 6), rep("grupo_3", 6), rep("grupo_4",6)), n.threads = 0)
+out <- bb.test(d[, 3:36], colSums(d[, 3:36]), c(rep("12.5fmol", 8), rep("25fmol", 9), rep("50fmol", 8), rep("100fmol",9)), n.threads = 0)
 
 
 # write result to file
