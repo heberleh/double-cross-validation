@@ -143,8 +143,12 @@ for(nfeatures in range){
   if (nfeatures == N){
     predN <- pred
   }
+
+
+  exp_pred = factor(testdata$y, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == testdata$y)))/length(testdata$y))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   cat("rank accuracy: ")
   cat(accuracy)
   cat("\n")
@@ -206,8 +210,10 @@ for(i in range){
   # classifica o conjunto de teste baseando-se no modelo criado
   pred = pamr.predict(model, testdata$x[ranking_index[start:max],], type = "class", threshold=0.000000000000000000000000000000000000000000000000000000000000)
   
+  exp_pred = factor(testdata$y, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == testdata$y)))/length(testdata$y))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   unlike_rank_accuracy<-rbind(unlike_rank_accuracy,accuracy)
 }
 
@@ -257,8 +263,10 @@ for(nfeatures in range){
   pred = pamr.predict(model, testdata$x[random_rank[1:nfeatures],], type = "class", threshold=0.000000000000000000000000000000000000000000000000000000000000)
   print(pred)
 
+  exp_pred = factor(testdata$y, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == testdata$y)))/length(testdata$y))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   random_rank_accuracy<-rbind(random_rank_accuracy, accuracy)
 }
 
@@ -292,6 +300,8 @@ dev.off()
 
 print(predN)
 print(ytest)
+
+ytest = factor(ytest, levels=levels(predN))
 
 sink("./results/nsc/independent/caret_nsc_independent_test.txt")
 confusionMatrix(predN, ytest, positive=NULL)

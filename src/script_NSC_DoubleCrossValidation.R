@@ -175,7 +175,7 @@ aux_db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
 initial_number_of_columns = ncol(aux_db)
 secretome.data <- pamr.from.excel("./dataset/current/train.txt", initial_number_of_columns, sample.labels=TRUE)
 
-repetition = 10          # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+repetition = 100         # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                          # default: 100
                          
 thresholds_number = 90   # NUMBER OF CALCULATED THRESHOLDS  default: 90
@@ -500,13 +500,13 @@ pred  = as.vector(unlist( final_pred_list ))
 ref = as.vector(unlist( final_ref_list ))
 
 sink("./results/nsc/caret_nsc.txt")
-cat("Average error of double cross-validation repetitions: ")
+cat("Average accuracy of double cross-validation repetitions: ")
 cat(mean_double_cross_validation)
 cat("\n\n")
-cat("Maximum error between repetitions: ")
+cat("Maximum accuracy between repetitions: ")
 cat(max_double_cross_validation)
 cat("\n\n")
-cat("Minimum error between repetitions: ")
+cat("Minimum accuracy between repetitions: ")
 cat(min_double_cross_validation)
 cat("\n\n")
 cat("Best model index: ")
@@ -517,7 +517,7 @@ cat("Selected final N: ")
 
 cat(finalN)
 cat("\n\n")
-cat("Double-Cross-Validation Error: ")    
+cat("Double-Cross-Validation Accuracy: ")    
 cat(double_cross_error[index])
 cat("\n\n")
 

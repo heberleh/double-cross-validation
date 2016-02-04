@@ -105,8 +105,10 @@ for(nfeatures in range){
   if (nfeatures == N){
     predN <- pred
   }
+ exp_pred = factor(ytest, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == ytest)))/length(ytest))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   rank_accuracy<-rbind(rank_accuracy,accuracy)
 }
 cat("\n\n")
@@ -133,8 +135,10 @@ for(i in range){
   svmModel = svm(x=x[,ranking_index[start:max]], y=y, cost = tuned$best.parameters[2], gamma=tuned$best.parameters[1], cachesize=100,  scale=T, type="C-classification", kernel="linear")
   # classifica o conjunto de teste baseando-se no modelo criado
   pred <- predict(svmModel, xtest[,ranking_index[start:max]])
+  exp_pred = factor(ytest, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == ytest)))/length(ytest))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   unlike_rank_accuracy<-rbind(unlike_rank_accuracy,accuracy)   
 }
 
@@ -162,8 +166,10 @@ for(nfeatures in range){
   svmModel = svm(x=x[,random_rank[1:nfeatures]], y=y, cost = tuned$best.parameters[2], gamma=tuned$best.parameters[1], cachesize=100,  scale=T, type="C-classification", kernel="linear")
   # classifica o conjunto de teste baseando-se no modelo criado
   pred <- predict(svmModel, xtest[,random_rank[1:nfeatures]])
+exp_pred = factor(ytest, levels=levels(pred))
+
   # verifica quantas amostras foram classificadas corretamente
-  accuracy <- (length(which(as.logical(pred == ytest)))/length(ytest))
+  accuracy <- (length(which(as.logical(pred == exp_pred)))/length(testdata$y))
   random_rank_accuracy<-rbind(random_rank_accuracy,accuracy)  
 }
 
