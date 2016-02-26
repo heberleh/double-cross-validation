@@ -11,7 +11,7 @@ d <- read.delim("./dataset/current/train_beta-binomial.txt", header = TRUE)
 #out <- bb.test(d[, 3:20], colSums(d[, 3:20]), c(rep("melanoma", 6), rep("carcinoma", 6), rep("normal", 6)), n.threads = 0)
 
 # four groups
-out <- bb.test(d[, 3:36], colSums(d[, 3:36]), c(rep("12.5fmol", 8), rep("25fmol", 9), rep("50fmol", 8), rep("100fmol",9)), n.threads = 0)
+out <- bb.test(d[, 3:26], colSums(d[, 3:26]), c(rep("12.5fmol", 6), rep("25fmol", 7), rep("50fmol", 6), rep("100fmol",7)), n.threads = 0)
 
 
 # write result to file
@@ -26,3 +26,15 @@ write.table(merged_full, file = "./results/beta-binomial/beta-binomial.sorted.cs
 
 #write.table(cbind(d, out$p.value), file = "./results/beta-binomial/beta-binomial.csv" , sep = ",", row.names = FALSE)
 #write.table(cbind(d[,1:2], out$p.value), file = "./results/beta-binomial/beta-binomial.short.csv" , sep = ",", row.names = FALSE)
+
+
+#12.5fmol_C4	12.5fmol_C5	12.5fmol_Ro	
+#12.5fmol_C8	12.5fmol_C9	12.5fmol_C10
+
+#25fmol_semtumorS49	25fmol_semtumorS55	25fmol_semtumorS57	25fmol_semtumorS61	#25fmol_semtumorS64	25fmol_semtumorS68	25fmol_semtumorT16	
+
+#50fmol_T1T2S78	50fmol_T1T2S79	50fmol_T1T2T12
+#50fmol_T1T2T20	50fmol_T1T2T22	50fmol_T1T2T23	
+
+#100fmol_T3T4S81	100fmol_T3T4S82	100fmol_T3T4T13
+#100fmol_T3T4T2	        100fmol_T3T4T5	100fmol_T3T4T65	     100fmol_T3T4T9

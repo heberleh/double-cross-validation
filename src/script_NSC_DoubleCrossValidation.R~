@@ -1,6 +1,6 @@
 
 #Installing required packages
-list.of.packages <- c("MASS", "pamr", "parallel", "doSNOW")
+list.of.packages <- c("MASS", "pamr", "parallel", "doSNOW","snow",)
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages,repos="http://brieger.esalq.usp.br/CRAN/")
 
