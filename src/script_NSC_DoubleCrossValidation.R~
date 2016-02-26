@@ -1,8 +1,20 @@
+
+#Installing required packages
+list.of.packages <- c("MASS", "pamr", "parallel")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages,repos="http://brieger.esalq.usp.br/CRAN/")
+
 library("MASS")
 library("pamr")
+library("parallel")
 
-library(parallel)
+# LOOK FOR THE SPECIFIC "TEXT" TO EDIT INPUT OR PARAMETERS:
+# #=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
+# SERACH FOR THE ABOVE STRING
 
+
+
+# FUNCTIONS, DO NOT EDIT, UNLESS YOU WANT TO CHANGE THE SCRIPT
 balanced.folds <- function (y, nfolds = min(min(table(y)), 10))   
 {
   totals <- table(y)
@@ -152,20 +164,34 @@ make_plot <- function(path,x,y,str){
 }
 
 
-secretome.data <- pamr.from.excel("LFQintensity_no_zeros_input.txt", 40, sample.labels=TRUE)
 
 
+#=========================== SETUP YOUR INPUT AND PARAMETERS ==============================
 
-#normalizar?
-x = secretome.data$x
+# PARAMETERS:    file.txt, number_of_columns
+# SEE THE train.txt AND FOLLOW THE PATTERN
+
+aux_db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
+initial_number_of_columns = ncol(aux_db)
+secretome.data <- pamr.from.excel("./dataset/current/train.txt", initial_number_of_columns, sample.labels=TRUE)
+
+repetition = 10         # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+                         # default: 100
+                         
+thresholds_number = 90   # NUMBER OF CALCULATED THRESHOLDS  default: 90
+                         # default: 90
+
+# z-score? Models like NSC have padronization by z-score by default.
+# Do not use this z-score code, unless you really want and know what
+# you are doing.
+# part of the code padronizes by lines.
+# the other part padronizes by columns.
+#x = secretome.data$x
 #for(i in 1:ncol(x))x[,i] = (x[,i]-mean(x[,i]))
-for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))
+#for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))
 #for(i in 1:ncol(x))x[,i] = (x[,i]-mean(x[,i]))/sd(x[,i])
-for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))/sd(x[i,])
-
-secretome.data$x = x
-
-
+#for(i in 1:nrow(x))x[i,] = (x[i,]-mean(x[i,]))/sd(x[i,])
+#secretome.data$x = x
 
 
 #bestThresholdOuterLoop = vector()
@@ -176,10 +202,8 @@ thres=vector()
 bestFinalNinner=vector()
 bestFinalN=vector()
 double_cross_error = vector()
-repetition  = 100
 folds_list = list()
 probs_final = vector()
-thresholds_number = 90
 inner_inner_rep = list()
 outer_rep = list()
 error_outers_rep  = list()
@@ -238,7 +262,7 @@ for (rep in 1:repetition){
   predictmany = list()
   ref=list()
   for (i in 1:nfold){
-    cat("definindo conjunto de treinamento outer-loop:", i,"\n")
+    #definindo conjunto de treinamento i
     secretome2.data$x <- secretome.data$x[, -folds[[i]],drop=FALSE]
     secretome2.data$y <- secretome.data$y[-folds[[i]]]
     secretome2.data$genenames <- secretome.data$genenames[-folds[[i]]]
@@ -260,7 +284,7 @@ for (rep in 1:repetition){
         errors_inner = vector()
         inner_model = list()
         for (ii in 1:nfold_inner){
-          cat("definindo conjunto de treinamento innet-loop:",ii,"\n")      
+          #definindo conjunto de treinamento ii      
           secretome2_inner.data$x <- secretome2.data$x[, -folds_inner[[ii]],drop=FALSE]
           secretome2_inner.data$y <- secretome2.data$y[-folds_inner[[ii]]]
           secretome2_inner.data$genenames <- secretome2.data$genenames[-folds_inner[[ii]]]
@@ -270,15 +294,11 @@ for (rep in 1:repetition){
           secretome2_inner.testY <- secretome2.data$y[folds_inner[[ii]]]
           
           #treinamento
-          cat("\ntreinamento-inner\n")
           secretome2_inner.train <- pamr.train(secretome2_inner.data)
-          cat("\nscales-inner\n")
           secretome2_inner.scales <- pamr.adaptthresh(secretome2_inner.train)
-          cat("\ntreinamento usando scales-inner\n")
-          secretome2_inner.train2 <- pamr.train(secretome2_inner.data, n.threshold=thresholds_number) 
+          secretome2_inner.train2 <- pamr.train(secretome2_inner.data, threshold.scale=secretome2_inner.scales,n.threshold=thresholds_number)
           
           #teste
-          cat("\nteste de um modelo inner\n")
           secretome2_inner.prob = pamr.predictmany(secretome2_inner.train2, secretome2_inner.testX)                
           
           preds_inner = secretome2_inner.prob$predclass
@@ -317,7 +337,6 @@ for (rep in 1:repetition){
       probabilities_inners[ii] <- inner[[ii]]$probability
     }
     
-    cat("\nvalores de thresholds selecionados no inner\n")
     selected_inner_values[[i]] = getLowerErrorMaxProbabilityMaxThreshold(errors_inners, thresholds_inners, probabilities_inners)    
     current_threshold = selected_inner_values[[i]]$higher_threshold
     selected_inner_model[[i]] <- inner_model[[selected_inner_values[[i]]$index]]
@@ -338,13 +357,12 @@ for (rep in 1:repetition){
 #     secretome2.data$geneid <- secretome2.data$geneid[features_index]    
 #     secretome2.testX <- secretome2.testX[features_index,,drop=FALSE]
 #      
-    cat("\n treinamento-outer\n")
+    
     #treinamento outer loop
     secretome2.train <- pamr.train(secretome2.data)
     secretome2.scales <- pamr.adaptthresh(secretome2.train)
     secretome2.train2 <- pamr.train(secretome2.data, threshold.scale=secretome2.scales,n.threshold=thresholds_number)
     
-    cat("\nteste-outer\n")
     #teste
     secretome2.class_pred = pamr.predict(secretome2.train2, secretome2.testX, current_threshold, type=c("class"))  
     secretome2.class_prob = pamr.predict(secretome2.train2, secretome2.testX, current_threshold, type=c("posterior"))
@@ -360,7 +378,7 @@ for (rep in 1:repetition){
     }    
     probabilities_outer[i] = total_probability / nrow(prob_matrix)
     
-    cat("\nsalvando modelo para loop do double\n")
+    
     outer_model[[i]] <- list(data = secretome2.data, train = secretome2.train2, testX = secretome2.testX, testY = secretome2.testY)
     
 #   predictmany[[i]] = pamr.predictmany(fit=secretome2.train2, newx=secretome2.testX, threshold=fixed_thresholds)
@@ -368,11 +386,10 @@ for (rep in 1:repetition){
   }
   
   
-  cat("\nfinalizando double\n")
+  
   preds_outer_rep[[rep]] = pred_outers
   refs_outer_rep[[rep]] = ref_outers
   
-cat("\nselecionando maior valor de threshold\n")
   for (tr in 1:nfold){
     thresholds_outers[tr] = selected_inner_values[[tr]]$higher_threshold
     #errors_outers[tr] = threshold_outer[[tr]]$error não usar esse "error" pois é do inner, não do outer    
@@ -382,7 +399,6 @@ cat("\nselecionando maior valor de threshold\n")
   error_outers_rep[[rep]]  = error_outers
   probabilities_outer_rep[[rep]] = probabilities_outer
   
-  cat("\nselecionando modelo de menor erro e max probabilidade\n")
   #treinamento final
   bestFinal[[rep]] = getLowerErrorMaxProbabilityMaxThreshold(error_outers,thresholds_outers,probabilities_outer)  
   secretome.train <- pamr.train(secretome.data)
@@ -391,9 +407,14 @@ cat("\nselecionando maior valor de threshold\n")
   selected_inner_model_final[[rep]] = selected_inner_model[[bestFinal[[rep]]$index]]
   selected_outer_model_final[[rep]] = outer_model[[bestFinal[[rep]]$index]]
   
-  cat("\nreexecutando treinamento com o conjunto completo para gerar o ranking final\n")
   secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales)  
-  cat("\ncortando a lista pelo threshold especificado\n")
+  
+
+  #round(bestFinal[[rep]]$higher_threshold, digits = 3)
+  if (bestFinal[[rep]]$higher_threshold > secretome.train2$threshold[length(secretome.train2$threshold)]){    
+    bestFinal[[rep]]$higher_threshold <- round(secretome.train2$threshold[length(secretome.train2$threshold)], digits=3)
+  }
+  
   selected_features_matrix_rep <- nrow(pamr.listgenes(secretome.train2, secretome.data,  bestFinal[[rep]]$higher_threshold))
   
   #secretome.class_pred = pamr.predict(secretome.train2, secretome.data$x, bestFinal[[rep]]$higher_threshold, type=c("class"))  
@@ -407,7 +428,8 @@ cat("\nselecionando maior valor de threshold\n")
 stime
 
 
-#Entre todas as repeti??es do Double-Cross-Validation, selecione a cujo erro mais se aproxima da m?dia
+
+#Entre todas as repetiCOes do Double-Cross-Validation, selecione a cujo erro mais se aproxima da mEdia
 mean_double_cross_validation = mean(double_cross_error)
 min_double_cross_validation = min(double_cross_error)
 max_double_cross_validation = max(double_cross_error)
@@ -431,31 +453,60 @@ secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales,
 
 list_genes_final=pamr.listgenes(secretome.train2, secretome.data, thres[index])
 complete_genes_list = pamr.listgenes(secretome.train2, secretome.data, 0, genenames=TRUE)
-write.csv(complete_genes_list,"complete_genes_list.csv")
+write.csv(complete_genes_list,"./results/nsc/gene_ranking_nsc_complete.csv")
+complete_genes_names_list = complete_genes_list[,2]
+
+# identifica proteínas descartadas para por no fim do ranking
+constant_proteins_for_nsc <- as.matrix(secretome.data$genenames[!(secretome.data$genenames %in% complete_genes_names_list )])
+constant_proteins_for_nsc_index <- match(constant_proteins_for_nsc,secretome.data$genenames)
+
+write.matrix(cbind(secretome.data$genenames[constant_proteins_for_nsc_index],secretome.data$x[constant_proteins_for_nsc_index,]), "./results/nsc/removed_proteins_by_NSC.csv",sep=",")
+
+# esse ranking se refere ao conjunto de treinamento
+ranking = as.matrix(match(complete_genes_names_list, secretome.data$genenames))
+ranking <- rbind(ranking, as.matrix(constant_proteins_for_nsc_index))
+write.matrix(ranking, file = "./results/nsc/rank_index_nsc.csv", sep = ",")
+
+
 
 
 # final_results <- cbind(thres,probs_final,double_cross_error,bestFinalN)
 finalN = nrow(list_genes_final)
+write(finalN, file="./results/nsc/double_selected_N_nsc.txt")
 
 final_inner_model_rep = selected_inner_model_final[[index]]
 final_outer_model_rep = selected_outer_model_final[[index]]
 
 final_pred_list = preds_outer_rep[[index]]
 final_ref_list = refs_outer_rep[[index]]
-sink()
+
+
+
+#imprime todos os erros e valores de N
+allpossibleN = numeric(0)
+for( countn in 1:repetition){
+  auxlist=pamr.listgenes(secretome.train2, secretome.data, thres[countn])
+  allpossibleN <- append(allpossibleN, nrow(auxlist))
+}
+allNThresErrors <- cbind(thres, double_cross_error)
+allNThresErrors <- cbind(allNThresErrors,allpossibleN)
+colnames(allNThresErrors)<-c("thresholds","double_cross_error","N")
+write.csv(allNThresErrors,"./results/nsc/errors_thresholds_and_Ns_nsc.csv")
+
+
 
 library(caret)
 pred  = as.vector(unlist( final_pred_list ))
 ref = as.vector(unlist( final_ref_list ))
 
-sink("caret_NSC_result.txt")
-cat("Average error of 100 double cross-validation repetitions: ")
+sink("./results/nsc/caret_nsc.txt")
+cat("Average accuracy of double cross-validation repetitions: ")
 cat(mean_double_cross_validation)
 cat("\n\n")
-cat("Maximum error between repetitions: ")
+cat("Maximum accuracy between repetitions: ")
 cat(max_double_cross_validation)
 cat("\n\n")
-cat("Minimum error between repetitions: ")
+cat("Minimum accuracy between repetitions: ")
 cat(min_double_cross_validation)
 cat("\n\n")
 cat("Best model index: ")
@@ -466,362 +517,45 @@ cat("Selected final N: ")
 
 cat(finalN)
 cat("\n\n")
-cat("Double-Cross-Validation Error: ")    
+cat("Double-Cross-Validation Accuracy: ")    
 cat(double_cross_error[index])
 cat("\n\n")
 
+pred=factor(pred, levels=unique(secretome.data$y))
+ref=factor(ref, levels=unique(secretome.data$y))
+
 confusionMatrix(pred, ref, positive=NULL)
+pred
+ref
 sink()
 
-
+pdf("./results/nsc/class_nsc_plot.pdf")
 pamr.plotcen(secretome.train2, secretome.data, thres[index])
+dev.off()
 
 final_genes = pamr.listgenes(secretome.train2, secretome.data, thres[index], fitcv=NULL, genenames=TRUE)
-write.csv(final_genes,"final_gene_list.csv")
+write.csv(final_genes,"./results/nsc/gene_ranking_nsc_cutoff.csv")
 
-#png(filename="gene_plot_NSC.png", width=4000, height=4000, pointsize=1/500)
-png(filename="gene_plot_NSC.png", width=4000, height=4000, pointsize=12)
+png(filename="./results/nsc/gene_plot_nsc.png", width=4000, height=4000, pointsize=12)
+#png(filename="gene_plot_NSC.png", width=1000, height=1000, pointsize=20)
 pamr.geneplot(secretome.train2, secretome.data, 1)
 dev.off()
 
 
 
-#final_values = getLowerErrorMaxProbabilityMaxThreshold(double_cross_error,thres,probs_final)
-
-#final_inner_model_rep = selected_inner_model_final[[final_values$index]]
-#final_outer_model_rep = selected_outer_model_final[[final_values$index]]
-
-#final_pred_list = preds_outer_rep[[final_values$index]]
-#final_ref_list = refs_outer_rep[[final_values$index]]
-# library(caret)
-# pred  = as.vector(unlist( final_pred_list ))
-# ref = as.vector(unlist( final_ref_list ))
-# 
-# sink("outers_pred_caret.txt")
-# confusionMatrix(pred, ref, positive=NULL)
-# sink()
 
 
 
+# simple crossvalidation
+# 
+secretome.train <- pamr.train(secretome.data)
+secretome.scales <- pamr.adaptthresh(secretome.train)
+secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales,n.threshold=thresholds_number, scale.sd=TRUE)  
 
 
-# 
-# secretome.train <- pamr.train(secretome.data)
-# secretome.scales <- pamr.adaptthresh(secretome.train)
-# secretome.train2 <- pamr.train(secretome.data, threshold.scale=secretome.scales,n.threshold=thresholds_number, scale.sd=TRUE)  
-# 
-# list_genes_final=pamr.listgenes(secretome.train2, secretome.data, final_values$higher_threshold)
-# # final_results <- cbind(thres,probs_final,double_cross_error,bestFinalN)
-# finalN = nrow(list_genes_final)
-# 
-# 
-# thresholds <- final_inner_model_rep$train$threshold
-# 
-# train_inner <- final_inner_model_rep$train
-# data_inner <- final_inner_model_rep$data
-# test_x_inner <- final_inner_model_rep$testX
-# test_y_inner <- final_inner_model_rep$testY
-# size = length(test_y_inner)
-# predicted_inner = list()
-# predicted_prob_inner = list()
-# error_inner = vector()
-# N_inner = vector()
-# for (i in 1:length(thresholds)){
-#   threshold = thresholds[i]
-#   predicted_inner[[i]] <- pamr.predict(fit=train_inner, newx=test_x_inner, threshold=threshold)
-#   predicted_prob_inner[[i]] <- pamr.predict(fit=train_inner, newx=test_x_inner, threshold=threshold, type="posterior")
-#   error_inner[i] = length(which(!as.logical(predicted_inner[[i]] == test_y_inner)))/size
-#   N_inner[i] = tryCatch(nrow(pamr.listgenes(fit=train_inner, data=data_inner, threshold=threshold)),error=function(e) 0)
-# }
-# 
-# 
-# 
-# 
-# 
-# 
-# train_outer <- final_outer_model_rep$train
-# data_outer <- final_outer_model_rep$data
-# test_x_outer <- final_outer_model_rep$testX
-# test_y_outer <- final_outer_model_rep$testY
-# size = length(test_y_outer)
-# predicted_outer = list()
-# predicted_prob_outer = list()
-# error_outer = vector()
-# N_outer = vector()
-# for (i in 1:length(thresholds)){
-#   threshold = thresholds[i]
-#   predicted_outer[[i]] <- pamr.predict(fit=train_outer, newx=test_x_outer, threshold=threshold)
-#   predicted_prob_outer[[i]] <- pamr.predict(fit=train_outer, newx=test_x_outer, threshold=threshold, type="posterior")
-#   
-#   error_outer[i] = length(which(!as.logical(predicted_outer[[i]] == test_y_outer)))/size
-#   N_outer[i] = tryCatch(nrow(pamr.listgenes(fit=train_outer, data=data_outer, threshold=threshold)),error=function(e) 0)
-# }
-# 
-# 
-# 
-# library(caret)
-# pred  = pamr.predict(final_outer_model_rep$train,secretome.data$x,threshold=final_values$higher_threshold)
-# ref = secretome.data$y
-# 
-# sink("out.txt")
-# confusionMatrix(pred, ref, positive=NULL)
-# sink()
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# train <- secretome.train2
-# data <- secretome.data
-# test_x <- secretome.data$x
-# test_y <- secretome.data$y
-# size = length(test_y)
-# predicted = list()
-# predicted_prob = list()
-# error = vector()
-# N = vector()
-# for (i in 1:length(thresholds)){
-#   threshold = thresholds[i]
-#   predicted[[i]] <- pamr.predict(fit=train, newx=test_x, threshold=threshold)
-#   predicted_prob[[i]] <- pamr.predict(fit=train, newx=test_x, threshold=threshold, type="posterior")
-#   error[i] = length(which(!as.logical(predicted[[i]] == test_y)))/size
-#   
-#   #tryCatch(pJohnson(.18, parms), error=function(e) alternativeFunction())
-#   N[i] = tryCatch(nrow(pamr.listgenes(fit=train, data=data, threshold=threshold)),error=function(e) 0)  
-# }
-# 
-# inner_outer_table <- cbind(thresholds,error_inner,N_inner,error_outer,N_outer,error,N)
-# write.csv(inner_outer_table,"inner_outer_thresholds_errors_Ns_90thresholds.csv")
-# 
-# 
-# path = "inner_outer_thresholds_erros_Ns_90thresholds_plot.pdf"
-# pdf(path)
-# str="Models' Errors by Thresholds"
-# x=thresholds
-# y1=error_inner
-# y2=error_outer
-# y3=error
-# plot(x, y1, type="n", main=str)
-# lines(x, y1, type="l", col="blue")
-# lines(x, y2, type="l", col="red")
-# lines(x, y3, type="l", col="green")
-# axis(1,at=final_values$higher_threshold,labels=c("t"))
-# # Legend Example  
-# legend("bottomright", inset=.005, title="Intersection",
-#        c("inner","outer","full"), fill=c("blue","red","green"), horiz=TRUE,cex=0.6)
-# dev.off()
-# 
-# 
-# genes = pamr.listgenes(secretome.train2,secretome.data,threshold=final_values$higher_threshold,genenames=TRUE)
-# original_genes = secretome.data$genenames 
-# index_centroids = which(original_genes %in% genes)
-# delta = secretome.train2$centroids - secretome.train2$centroid.overall
-# delta = cbind(secretome.data$genenames,delta)
-# centroids = delta[index_centroids,]
-# write.csv(delta,"d_completo.csv")
-# write.csv(centroids,"d_centroids.csv")
-# 
-# pamr.plotcen()
+cv_result = pamr.cv(secretome.train2, secretome.data)
+pdf("./results/nsc/simple_cross-validation_nsc_plot.pdf")
+pamr.plotcv(cv_result)
+dev.off()
 
-# pdf("./analysis/plot_6fold.pdf")
-# cv1 <- pamr.cv(fit=secretome.train2,data=secretome.data,folds=folds_list[[1]])
-# pamr.plotcv(cv1)
-# dev.off()
-
-
-#pamr.plotcvprob(secretome.train2,secretome.data,2.509043845)
-#2.509043845 6-fold
-#3.507413642 loo
-
-
-
-
-  
-# 
-
-#   
-#   
-# n_from_inner = bestFinalNinner[match(maxmax$higher_threshold,thres)]
-# 
-# 
-# #data[sort.list(data[,2]), ]
-# final_results_sortbythres <- final_results[sort.list(final_results[,1]),]
-# final_results_sortbyprobs <- final_results[sort.list(final_results[,2]),]
-# final_results_sortbyerror <- final_results[sort.list(final_results[,3]),]
-# final_results_sortbyn <- final_results[sort.list(final_results[,4]),]
-# 
-# # path = paste("./analysis/prob_vs_threshold_kfold_",repetition,".pdf",sep="")
-# # pdf(path)
-# # ## Plot the class centroids   format(x, digits=0
-# # str=paste("Higher thre:",format(maxmax$higher_threshold,nsmall=3),". maxProb:", format(maxmax$probability, nsmall=3), "N=", nrow(list_genes_final),sep=" ")
-# # plot(final_results_sortbythres[,1], final_results_sortbythres[,2], type="n", main=str)
-# # lines(final_results_sortbythres[,1], final_results_sortbythres[,2], type="l")
-# # dev.off()
-# 
-# 
-# 
-# 
-# str=paste("Higher thre:",format(maxmax$higher_threshold,nsmall=3),". error:", format(double_cross_error[match(maxmax$higher_threshold,thres)], nsmall=3), "N=", nrow(list_genes_final), "innerN=",n_from_inner,sep=" ")
-# 
-# path = paste("./analysis/threshold_vs_error_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbythres[,1], final_results_sortbythres[,3],str)
-# 
-# path = paste("./analysis/probs_vs_error_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyprobs[,2], final_results_sortbyprobs[,3],str)
-# 
-# path = paste("./analysis/prob_vs_threshold_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyprobs[,2], final_results_sortbyprobs[,1],str)
-# 
-# path = paste("./analysis/error_vs_probs_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyerror[,3],final_results_sortbyerror[,2],str)
-# 
-# path = paste("./analysis/error_vs_thres_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyerror[,3],final_results_sortbyerror[,1],str)
-# 
-# path = paste("./analysis/n_vs_error_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyn[,5],final_results_sortbyn[,3],str)
-# 
-# path = paste("./analysis/n_vs_probs_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyn[,5],final_results_sortbyn[,2],str)
-# 
-# 
-# path = paste("./analysis/n_vs_thres_kfold_",repetition,".pdf",sep="")
-# make_plot(path,final_results_sortbyn[,5],final_results_sortbyn[,1],str)
-# 
-# 
-# csv_matrix <- final_results_sortbyprobs
-# colnames(csv_matrix) <- c("Threshold","MaxMeanProbability","MeanKFoldError","innerN","N")
-# path = paste("./analysis/results_thres_probs_erros_ns_",repetition,".csv",sep="")
-# write.csv(csv_matrix,path)
-# 
-# list_genes_threshold = 0 #use it to get all genes
-# list_genes_threshold = maxmax$higher_threshold
-# #print each gene list from each k-train-model for best threshold from inner-loop
-# text = pamr.listgenes(secretome.train2, secretome.data,  list_genes_threshold, genenames=TRUE)
-# path = paste("./analysis/final_gene_list_",repetition,".csv",sep="")
-# write.csv(text,path)
-# 
-# 
-# path = paste("./analysis/density_N_",repetition,".pdf",sep="")
-# pdf(path)
-# d<-density(bestFinalN)
-# str= paste("Best N = ",nrow(list_genes_final),". Highest density(h) =",format(d$x[match(max(d$y),d$y)],nsmall=1,digits=2), sep="")
-# plot(d, main=str)
-# axis(1,at=nrow(list_genes_final),labels=c("N"))
-# axis(1,at=d$x[match(max(d$y),d$y)],labels=c("h"))
-# dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# path = paste("./analysis/gene_plot_",repetition,".pdf",sep="")
-# pdf(path)
-# #pamr.plotcen(secretome.train2, secretome.data, threshold=maxmax$higher_threshold)
-# pamr.plotcen(secretome.train2, secretome.data, threshold=1.936)
-# dev.off()
-
-
-
-
-#print each gene list from each k-train-model for best threshold from inner-loop
-#text = pamr.listgenes(secretome.train2, secretome.data,  3.489524, genenames=TRUE)
-#path = "./final_list/final_gene_list.csv"
-#write.csv(text,path)
-
-
-
-
-
-
-# newthres=sort(thres)
-# unique(thres)
-# # Kernel Density Plot
-# d <- density(thres) # returns the density data
-# plot(intervals=d,) # plots the results 
-
-
-
-# plot (c(1968,2010),c(0,10),type="n", # sets the x and y axes scales
-#       
-#       xlab="Year",ylab="Expenditures/GDP (%)") # adds titles to the axes
-# 
-# lines(year,defense,col="red",lwd=2.5) # adds a line for defense expenditures
-# 
-# lines(year,health,col="blue",lwd=2.5) # adds a line for health expenditures
-# 
-# legend(2000,9.5, # places a legend at the appropriate place c("Health","Defense"), # puts text in the legend
-#        
-#        lty=c(1,1), # gives the legend appropriate symbols (lines)
-#        
-#        lwd=c(2.5,2.5),col=c("blue","red")) # gives the legend lines the correct color and width
-
-
-# segments(x, y-sd,x, y+sd)
-# epsilon = 0.02
-# segments(x-epsilon,y-sd,x+epsilon,y-sd)
-# segments(x-epsilon,y+sd,x+epsilon,y+sd)
-
-
-
-
-
-
-
-#utilizado para fazer media de probs por threshold...
-#   predictmany_rep[[rep]] = predictmany
-
-#   mean_error_by_threhsold = rep(0, length(fixed_thresholds))
-#   mean_prob_by_threshold = rep(0,length(fixed_thresholds))
-
-#   for (o in 1:1){
-#     predict = predictmany[[o]]
-#     probs = predict$prob
-#     pred = predict$predclass
-#     
-#     for (thre in 1:length(fixed_thresholds)){
-#       current_thre = fixed_thresholds[thre]
-#       current_pred = unlist(pred[,thre])
-#       current_ref = unlist(ref[o])
-#       m = vector()
-#       current_prob = probs[,,thre]
-#       for (l in 1:nrow(current_prob)){
-#         m[l]= max(current_prob[,l])
-#       }
-#       mean_prob_by_threshold[thre] =  mean(m)
-#       
-#       mean_error_by_threhsold[thre] = length(which(!as.logical(current_pred == current_ref)))/length(current_ref)     
-#     }
-#   }
-#   
-#   for (o in 2:nfold){
-#     predict = predictmany[[o]]
-#     probs = predict$prob
-#     pred = predict$predclass  
-#     for (thre in 1:length(fixed_thresholds)){
-#       current_thre = fixed_thresholds[thre]
-#       current_pred = unlist(pred[,thre])
-#       current_ref = unlist(ref[o])
-#       m = vector()
-#       current_prob = probs[,,thre]
-#       for (l in 1:nrow(current_prob)){
-#         m[l]= max(current_prob[l,])
-#       }
-#       mean_prob_by_threshold[thre] = mean(c(mean_prob_by_threshold[thre], mean(m)))
-#       
-#       mean_error_by_threhsold[thre] = mean(c(mean_error_by_threhsold[thre], (length(which(!as.logical(current_pred == current_ref)))/length(current_ref))))
-#     }
-#   }
-#   
 

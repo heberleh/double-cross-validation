@@ -2,7 +2,7 @@
 #Installing required packages
 list.of.packages <- c("MASS", "pamr", "parallel")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages,repos="http://brieger.esalq.usp.br/CRAN/")
 
 library("MASS")
 library("pamr")
@@ -175,7 +175,7 @@ aux_db <- read.table("./dataset/current/train.txt", header=TRUE,sep="\t")
 initial_number_of_columns = ncol(aux_db)
 secretome.data <- pamr.from.excel("./dataset/current/train.txt", initial_number_of_columns, sample.labels=TRUE)
 
-repetition = 100         # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+repetition = 10          # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                          # default: 100
                          
 thresholds_number = 90   # NUMBER OF CALCULATED THRESHOLDS  default: 90

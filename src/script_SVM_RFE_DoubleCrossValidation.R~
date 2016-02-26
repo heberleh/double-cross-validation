@@ -226,7 +226,7 @@ global_tune = TRUE        # DECIDE IF THE SCRIPT SHOULD TUNE THE MODEL PARAMETER
                            # THE K-FOLD CROSS VALIDATION IF THE FOLDS CONTAIN ONLY ONE OR 2 SAMPLES, OR WORST: ZERO SAMPLES.                           
                            
 
-repetition <- 10           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
+repetition <- 100          # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXECUTED
                            # default: 100
                                                       
 
