@@ -1,0 +1,39 @@
+Confusion Matrix and Statistics
+
+           Reference
+Prediction  100fmol  12.5fmol  25fmol  50fmol 
+  100fmol          1         0       0       0
+  12.5fmol         0         0       0       0
+  25fmol           0         1       1       0
+  50fmol           0         0       0       1
+
+Overall Statistics
+                                          
+               Accuracy : 0.75            
+                 95% CI : (0.1941, 0.9937)
+    No Information Rate : 0.25            
+    P-Value [Acc > NIR] : 0.05078         
+                                          
+                  Kappa : 0.6667          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: 100fmol  Class: 12.5fmol  Class: 25fmol 
+Sensitivity                     1.00             0.00         1.0000
+Specificity                     1.00             1.00         0.6667
+Pos Pred Value                  1.00              NaN         0.5000
+Neg Pred Value                  1.00             0.75         1.0000
+Prevalence                      0.25             0.25         0.2500
+Detection Rate                  0.25             0.00         0.2500
+Detection Prevalence            0.25             0.00         0.5000
+Balanced Accuracy               1.00             0.50         0.8333
+                     Class: 50fmol 
+Sensitivity                    1.00
+Specificity                    1.00
+Pos Pred Value                 1.00
+Neg Pred Value                 1.00
+Prevalence                     0.25
+Detection Rate                 0.25
+Detection Prevalence           0.25
+Balanced Accuracy              1.00

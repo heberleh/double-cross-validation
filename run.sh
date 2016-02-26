@@ -31,7 +31,7 @@
 # Run Beta-Binomial test
 echo "-------------------------------------------"
 echo "Executing Beta-Binomial test"
-#R -f ./src/script_Beta-Binomial.R #>/dev/null
+R -f ./src/script_Beta-Binomial.R #>/dev/null
 echo "Beta-Binomial test completed."
 echo "-------------------------------------------"
 echo " "
