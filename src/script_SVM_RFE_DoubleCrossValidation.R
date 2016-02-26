@@ -1,6 +1,6 @@
 
 #Installing required packages
-list.of.packages <- c("MASS", "class", "e1071", "dismo", "caret", "rpart", "parallel")
+list.of.packages <- c("MASS", "doSNOW","snow", "class", "e1071", "dismo", "caret", "rpart", "parallel")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
 if(length(new.packages)) install.packages(new.packages,repos="http://brieger.esalq.usp.br/CRAN/")
@@ -231,7 +231,7 @@ repetition <- 10           # NUMBER OF DOUBLE CROSS VALIDATION THAT WILL BE EXEC
                                                       
 
 #nCluster = detectCores()                           
-nCluster = 4               # NUMBER OF CORES/NUCLEUS FOR PARALLEL PROCESSING. 
+nCluster = 8               # NUMBER OF CORES/NUCLEUS FOR PARALLEL PROCESSING. 
                            # FOR INSTANCE, Intel i7 processors might have 8 virtual nucleus.
                            # IF YOU SET nCluster = 8, THE SCRIPT WILL RUN
                            # 8 DOUBLE CROSS VALIDATION AT THE SAME TIME, ONE PER CORE.
