@@ -1,0 +1,53 @@
+Average accuracy of  double cross-validation repetitions: 0.2978175
+
+Maximum accuracy between repetitions: 0.4222222
+
+Minimum accuracy between repetitions: 0.1583333
+
+Best model indexes: 10
+
+All possible N according to selected models:13
+
+Minimum N (selected final N): 13
+
+Double-Cross-Validation accuracy: 0.2916667
+
+Confusion Matrix and Statistics
+
+           Reference
+Prediction  12.5fmol  25fmol  50fmol  100fmol 
+  12.5fmol          5       2       0        0
+  25fmol            1       4       2        0
+  50fmol            0       1       5        2
+  100fmol           0       0       1        5
+
+Overall Statistics
+                                          
+               Accuracy : 0.6786          
+                 95% CI : (0.4765, 0.8412)
+    No Information Rate : 0.2857          
+    P-Value [Acc > NIR] : 1.862e-05       
+                                          
+                  Kappa : 0.5707          
+ Mcnemar's Test P-Value : NA              
+
+Statistics by Class:
+
+                     Class: 12.5fmol  Class: 25fmol  Class: 50fmol 
+Sensitivity                    0.8333         0.5714         0.6250
+Specificity                    0.9091         0.8571         0.8500
+Pos Pred Value                 0.7143         0.5714         0.6250
+Neg Pred Value                 0.9524         0.8571         0.8500
+Prevalence                     0.2143         0.2500         0.2857
+Detection Rate                 0.1786         0.1429         0.1786
+Detection Prevalence           0.2500         0.2500         0.2857
+Balanced Accuracy              0.8712         0.7143         0.7375
+                     Class: 100fmol 
+Sensitivity                   0.7143
+Specificity                   0.9524
+Pos Pred Value                0.8333
+Neg Pred Value                0.9091
+Prevalence                    0.2500
+Detection Rate                0.1786
+Detection Prevalence          0.2143
+Balanced Accuracy             0.8333
